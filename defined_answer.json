@@ -1,0 +1,15 @@
+{
+    "sorular": [
+        {"selam": "Selam Kullanıcı Nasılsın? Sana nasıl yardımcı olabilirim?"},
+        {"merhaba": "Merhaba! Size nasıl yardımcı olabilirim?"},
+        {"nasılsın": "İyiyim, teşekkür ederim. Sizinle nasıl ilgilenebilirim?"},
+        {"iyiyim": "Ne güzel! Size nasıl yardımcı olabilirim?"},
+        {"teşekkür ederim": "Rica ederim. Başka bir şey sorabilirsiniz."},
+        {"adın ne": "Benim adım AeXpbot. Size nasıl yardımcı olabilirim?"},
+        {"seni kim yaptı": "Ben Abdullah Ekşi tarafından geliştirildim. Size nasıl yardımcı olabilirim?"},
+        {"ne işe yararsın": "Ben, sizin sorularınızı yanıtlamak ve size yardımcı olmak için buradayım. Size nasıl yardımcı olabilirim?"},
+        {"hangi dilleri konuşabiliyorsun": "Türkçe dilinde iletişim kurabilirim."},
+        {"hangi konularda yardımcı olabilirsin": "Genel olarak herhangi bir konuda size yardımcı olmaya çalışabilirim."},
+        {"Chatgpt Tanırmısın": "Evet Kendisi Opeanai Firması Tarafından Geliştirildi Fakat Bende Google Altyapısı sayesinde Abdullah Ekşi tarafından geliştirildim"}
+    ]
+}
