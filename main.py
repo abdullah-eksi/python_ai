@@ -1,7 +1,7 @@
 import json  # JSON veri işleme için gerekli kütüphane
 import requests  # API istekleri için gerekli kütüphane
 from difflib import get_close_matches  # Yakın eşleşmeleri bulmak için difflib kütüphanesinden get_close_matches fonksiyonu
-import os  # İşletim sistemi işlemleri için gerekli kütüphane
+import os  # İşletim sisteminden masaüstü dizinini almak için
 
 # Gemini AI'dan cevap almak için Fonksiyon
 def get_gemini_ai_answer(soru):
@@ -48,9 +48,9 @@ def get_gemini_ai_answer(soru):
     }
 
     # API isteği gönderme
-    response = requests.post(url, json=data)
-    if response.status_code == 200:
-        return response.json()  # API'dan gelen cevabı JSON formatında döndür
+    yanit = requests.post(url, json=data)
+    if yanit.status_code == 200:
+        return yanit.json()  # API'dan gelen cevabı JSON formatında döndür
     else:
         return None #bir yanıt alamazsa none döndür
 
@@ -82,21 +82,22 @@ def oto_cevap(params, message):
     tanimli_sorular = tanimli_soru_yukle("defined_answer.json")  # Tanımlı soruları yükle
 
     text = message['text'].lower().strip()  # Gelen mesajı küçük harflere çevirme ve boşlukları temizleme
-    best_match = get_close_matches(text, tanimli_sorular.keys(), n=1, cutoff=0.7)  # En yakın eşleşmeyi bulma
+    en_iyi_eslesme = get_close_matches(text, tanimli_sorular.keys(), n=1, cutoff=0.7)  # En yakın eşleşmeyi bulma
 
-    if best_match:
-        return tanimli_sorular[best_match[0]]  # En yakın eşleşme varsa tanımlı cevabı döndürme
+    if en_iyi_eslesme:
+        return tanimli_sorular[en_iyi_eslesme[0]]  # En yakın eşleşme varsa tanımlı cevabı döndürme
     else:
         # Yapay zeka yanıtı al
         ai_response = get_gemini_ai_answer(text)
-        response = ai_response["candidates"][0]["content"]["parts"][0]["text"] if ai_response else None
+        
+        if ai_response and "candidates" in ai_response and ai_response["candidates"]:
+            yanit = ai_response["candidates"][0]["content"]["parts"][0]["text"]
+            return yanit  # Yapay zeka yanıtını döndürme
+        
+        # Eğer yapay zeka yanıtı alınamazsa veya beklenen formatta değilse, hata mesajı döndür
+        return "Üzgünüm, bir sorun oluştu Malesef Sorunlarınızı Şuanda Cevaplandıramıyorum Daha sonra tekrar deneyin"
 
-        if response:
-            return response  # Yapay zeka yanıtını döndürme
-        else:
-            return "Üzgünüm, bu konuda bir bilgim yok."  # Yanıt yoksa hata mesajı döndürme
-
-# Ana Fonksiyonumuz
+# Main Fonksiyonumuz
 def main():
     
     
@@ -105,10 +106,11 @@ def main():
     while True:
         user_input = input("Sorunuzu Giriniz  (Yardım İçin [ aexp help ] komutunu kullanınız): ")
 
-        if  user_input.lower() == 'aexp logout' or user_input.lower() == 'logout' or user_input.lower() == 'Logout' : # Kullanıcı logout girerse uygulamadan çık
+        if  user_input.lower() == 'aexp logout' or user_input.lower() == 'logout' or user_input.lower() == 'Logout' or user_input.lower() == 'Çıkış' or user_input.lower() == 'Çıkış Yap': # Kullanıcı logout girerse uygulamadan çık
             print("Çıkış Yapılıyor ...")
             break
-        elif user_input.lower() == 'aexp help' or user_input.lower() == 'help': # Kullanıcı aexp help girerse yardım mesajını göster
+        #help komutu
+        elif user_input.lower() == 'aexp help' or user_input.lower() == 'help' or user_input.lower() == 'yardım' or user_input.lower() == 'aexp yardım': # Kullanıcı aexp help girerse yardım mesajını göster
             print("\n AeXp Ai Kullanımı: \n")
             print(" - Soru veya mesajınızı girin.")
             print(" - Cevabı Bekleyiniz")
@@ -116,17 +118,27 @@ def main():
             print(" - Uygulamadan Çıkmak için Logout Komutunu Kullanınız \n")
            
             continue # Döngünün başına dön
+        #sahip komutu
+        elif user_input.lower() == 'aexp author' or user_input.lower() == 'sahip' or user_input.lower() == 'author' or user_input.lower() == 'aexp developer': # Kullanıcı aexp help girerse yardım mesajını göster
+            print("\n AeXp Ai bot: \n")
+            print(" - AeXp Ai Abdullah Ekşi Tarafından Kodlandı.")
+            print(" - AeXp Ai Google Gemini Altyapısı Kullanmaktadır.")
+            print(" \n Teknik Destek İçin İletişim Bilgileri \n")
+            print(" - Mail : İnfo@aexpsoft.com , info@abdullaheksi.com.tr ")
+            print(" - Web : https://aexpsoft.com \n")
+           
+            continue # Döngünün başına dön
         print("\nSorunuz cevaplandırılıyor...\n") 
-        response = oto_cevap({}, {'text': user_input})  # Otomatik cevap alma
+        sorunun_cevabı = oto_cevap({}, {'text': user_input})  # Otomatik cevap alma
      
-        print("\n İşte Sorunuzun Cevabı : ",response,"\n")  # Cevabı yazdırma
+        print("\n İşte Sorunuzun Cevabı : ",sorunun_cevabı,"\n")  # Cevabı yazdırma
 
-        if response:
+        if sorunun_cevabı:
             dosya_adi = user_input.replace(" ", "_")  # Dosya adını oluşturma
-            dosya_yolu = cevapi_kaydet(dosya_adi, response)  # Cevabı dosyaya kaydetme
+            dosya_yolu = cevapi_kaydet(dosya_adi, sorunun_cevabı)  # Cevabı dosyaya kaydetme
             print(f"\n \n Sevgili Kullanıcı Sorunuzun Cevabı {dosya_adi}.txt dosyasına kaydedildi. Dosyanın Kaydedildi Yer: {dosya_yolu}\n \n")
 
 
 
 if __name__ == "__main__":
-    main()  # Ana işlevi çağırma
+    main()  # Main Fonksiyonunu çağırma
